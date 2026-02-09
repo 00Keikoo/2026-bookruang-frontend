@@ -20,6 +20,7 @@ function App() {
     status: "pending",
   });
 
+  const [editingId, setEditingId] = useState<number | null>(null);
   const API = "http://localhost:5021/api/RoomLoans";
 
   const fetchLoans = async () => {
@@ -32,15 +33,28 @@ function App() {
     fetchLoans();
   }, []);
 
+  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch(API, {
+    if(editingId){
+      //UPDATE
+      await fetch(`${API}/$(editingId)`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
+    }else {
+      await fetch(API, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(form),
     });
+  }
     setForm({
       borrowerName: "",
       roomName: "",
@@ -50,6 +64,19 @@ function App() {
     });
     fetchLoans();
   };
+
+  const handleEdit = (loan: RoomLoan) => {
+    setForm(loan);
+    setEditingId(loan.id || null);
+  };
+
+  const handleDelete = async (id?: number) => {
+    if(!id) return;
+    await fetch(`${API}/$(id)`, {
+      method: "DELETE",
+    });
+    fetchLoans();
+  }
 
   return (
     <div className="container">
@@ -87,6 +114,21 @@ function App() {
         {loans.map((loan) => (
           <li key={loan.id}>
             {loan.borrowerName} - {loan.roomName} - {loan.date} ({loan.status})
+            <br />
+            <button
+            type="button"
+            onClick={() => handleEdit(loan)}
+            style={{ marginRight: "10px", marginTop: "10px"}}
+            >
+              Edit
+            </button>
+            <button
+            type="button"
+            onClick={() => handleDelete(loan.id)}
+            style={{ background: "#e53935", marginTop: "10px"}}
+            >
+              Delete
+            </button>
           </li>
         ))}
       </ul>
