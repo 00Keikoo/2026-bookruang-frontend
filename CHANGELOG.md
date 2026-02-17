@@ -11,3 +11,9 @@
 - Add filter & search
 - Add status badges
 - Update App.tsx dengan enhanced features
+
+## v1.2.0
+- Add login 
+- Add register
+- Add authorization 
+- Add role admin and user 
